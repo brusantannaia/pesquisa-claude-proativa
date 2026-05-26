@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesquisa de Nivelamento — Claude na Proativa</title>
+  <meta name="description" content="Pesquisa de nivelamento para a aula sobre Claude da Proativa (Oneglobal).">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --og-green: #005847;
+      --og-green-light: #007a63;
+      --og-green-dark: #003d31;
+      --og-green-soft: rgba(0, 88, 71, 0.06);
+      --og-charcoal: #3D3936;
+      --og-cream: #f7f5ef;
+      --og-white: #ffffff;
+      --og-grey: #6b6b6b;
+      --og-light-grey: #e8e6df;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+      --shadow-card: 0 12px 40px rgba(0, 88, 71, 0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--og-cream);
+      color: var(--og-charcoal);
+      line-height: 1.65;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #002822 0%, var(--og-green-dark) 35%, var(--og-green) 75%, #006e58 100%);
+      color: white;
+      padding: 64px 24px 100px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    /* Pattern topográfico de fundo */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("topographic-pattern.svg");
+      background-size: cover;
+      background-position: center;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Grain sutil sobre tudo */
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 1;
+      mix-blend-mode: overlay;
+    }
+
+    /* Orb decorativo (estilo planeta/lua, inspirado no command center) */
+    .hero-orb {
+      position: absolute;
+      top: -18%;
+      right: -8%;
+      width: 540px;
+      height: 540px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 32% 28%,
+          rgba(140, 200, 175, 0.32) 0%,
+          rgba(70, 140, 115, 0.22) 25%,
+          rgba(20, 80, 65, 0.16) 50%,
+          rgba(0, 40, 30, 0.08) 72%,
+          transparent 85%);
+      filter: blur(0.5px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero-orb::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n2)' opacity='0.6'/%3E%3C/svg%3E");
+      opacity: 0.18;
+      mix-blend-mode: overlay;
+      mask: radial-gradient(circle at center, black 0%, black 65%, transparent 85%);
+      -webkit-mask: radial-gradient(circle at center, black 0%, black 65%, transparent 85%);
+    }
+
+    /* Conteúdo do hero acima do pattern/orb */
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .brand-lockup {
+      display: inline-flex;
+      align-items: center;
+      gap: 28px;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .brand-lockup .logo-oneglobal {
+      height: 38px;
+      width: auto;
+      display: block;
+    }
+
+    .brand-lockup .logo-newscale {
+      height: 54px;
+      width: auto;
+      display: block;
+    }
+
+    .brand-lockup .divider {
+      width: 1px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .brand-lockup .partner-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.78rem;
+      opacity: 0.65;
+      letter-spacing: 0.06em;
+      margin: 0 4px;
+      text-transform: lowercase;
+    }
+
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.2rem, 5.2vw, 3.4rem);
+      font-weight: 600;
+      line-height: 1.12;
+      margin-bottom: 18px;
+      letter-spacing: -0.01em;
+      position: relative;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      font-weight: 500;
+      color: #c8e8de;
+    }
+
+    .hero .subtitle {
+      font-size: 1.05rem;
+      opacity: 0.88;
+      max-width: 560px;
+      margin: 0 auto;
+      font-weight: 300;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    .hero .strapline {
+      margin-top: 26px;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.95rem;
+      opacity: 0.7;
+      letter-spacing: 0.02em;
+      position: relative;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 720px;
+      margin: -56px auto 0;
+      background: white;
+      padding: 56px 56px;
+      border-radius: 14px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      z-index: 2;
+    }
+
+    .intro {
+      padding-bottom: 32px;
+      margin-bottom: 44px;
+      border-bottom: 1px solid var(--og-light-grey);
+    }
+
+    .intro p {
+      font-size: 0.98rem;
+      color: var(--og-grey);
+      line-height: 1.7;
+    }
+
+    .intro strong {
+      color: var(--og-green);
+      font-weight: 600;
+    }
+
+    /* QUESTION */
+    .question {
+      margin-bottom: 40px;
+    }
+
+    .question-meta {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      color: var(--og-green);
+      font-size: 0.92rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      letter-spacing: 0.01em;
+    }
+
+    .question-label {
+      font-size: 1.08rem;
+      font-weight: 500;
+      color: var(--og-charcoal);
+      margin-bottom: 18px;
+      line-height: 1.45;
+      display: block;
+    }
+
+    .question-label .light {
+      font-weight: 400;
+      color: var(--og-grey);
+      font-size: 0.9rem;
+    }
+
+    /* INPUTS */
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--og-light-grey);
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.98rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: var(--og-white);
+      color: var(--og-charcoal);
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: var(--og-green);
+      box-shadow: 0 0 0 3px rgba(0, 88, 71, 0.08);
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    /* SCALE 1-5 */
+    .scale {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .scale-option {
+      cursor: pointer;
+    }
+
+    .scale-option input { display: none; }
+
+    .scale-card {
+      padding: 16px 8px;
+      border: 1.5px solid var(--og-light-grey);
+      border-radius: 8px;
+      text-align: center;
+      transition: all 0.18s ease;
+      background: white;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 78px;
+    }
+
+    .scale-option:hover .scale-card {
+      border-color: var(--og-green);
+      transform: translateY(-1px);
+    }
+
+    .scale-option input:checked + .scale-card {
+      border-color: var(--og-green);
+      background: var(--og-green-soft);
+      box-shadow: 0 4px 12px rgba(0, 88, 71, 0.1);
+    }
+
+    .scale-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--og-green);
+      display: block;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .scale-label {
+      font-size: 0.7rem;
+      color: var(--og-grey);
+      line-height: 1.25;
+      font-weight: 400;
+    }
+
+    .scale-option input:checked + .scale-card .scale-label {
+      color: var(--og-green-dark);
+      font-weight: 500;
+    }
+
+    /* CHOICE LIST */
+    .choice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .choice {
+      cursor: pointer;
+      display: block;
+    }
+
+    .choice input { display: none; }
+
+    .choice-card {
+      padding: 14px 18px;
+      border: 1.5px solid var(--og-light-grey);
+      border-radius: 8px;
+      transition: all 0.18s ease;
+      background: white;
+      font-size: 0.97rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--og-charcoal);
+    }
+
+    .choice-card::before {
+      content: '';
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid var(--og-light-grey);
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: all 0.18s;
+      position: relative;
+    }
+
+    .choice input[type="checkbox"] + .choice-card::before {
+      border-radius: 4px;
+    }
+
+    .choice:hover .choice-card {
+      border-color: var(--og-green);
+    }
+
+    .choice input:checked + .choice-card {
+      border-color: var(--og-green);
+      background: var(--og-green-soft);
+      color: var(--og-green-dark);
+      font-weight: 500;
+    }
+
+    .choice input:checked + .choice-card::before {
+      border-color: var(--og-green);
+      background: var(--og-green);
+      box-shadow: inset 0 0 0 3px white;
+    }
+
+    .choice input[type="checkbox"]:checked + .choice-card::before {
+      background: var(--og-green);
+      box-shadow: none;
+    }
+
+    .choice input[type="checkbox"]:checked + .choice-card::after {
+      content: '✓';
+      position: absolute;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      margin-left: -15px;
+      margin-top: 1px;
+    }
+
+    .other-input {
+      margin-top: 10px;
+      display: none;
+    }
+
+    .other-input.show { display: block; animation: fadeIn 0.25s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* SUBMIT */
+    button.submit {
+      width: 100%;
+      background: var(--og-green);
+      color: white;
+      padding: 18px 32px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 1.02rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
+      letter-spacing: 0.01em;
+      margin-top: 16px;
+      box-shadow: 0 4px 16px rgba(0, 88, 71, 0.18);
+    }
+
+    button.submit:hover:not(:disabled) {
+      background: var(--og-green-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 88, 71, 0.24);
+    }
+
+    button.submit:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* SUCCESS */
+    .success-msg {
+      display: none;
+      text-align: center;
+      padding: 48px 24px;
+    }
+
+    .success-msg.show { display: block; }
+
+    .success-msg .check {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--og-green-soft);
+      color: var(--og-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .success-msg h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      color: var(--og-green-dark);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .success-msg p {
+      color: var(--og-grey);
+      font-size: 1.02rem;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      padding: 36px 24px 56px;
+      color: var(--og-grey);
+      font-size: 0.82rem;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    .footer .newscale-mark {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      color: var(--og-green);
+      font-weight: 500;
+    }
+
+    .footer .separator {
+      opacity: 0.4;
+      margin: 0 8px;
+    }
+
+    /* MOBILE */
+    @media (max-width: 640px) {
+      .hero { padding: 48px 20px 80px; }
+      .container {
+        padding: 36px 24px;
+        margin: -48px 16px 0;
+        border-radius: 12px;
+      }
+      .scale { gap: 6px; }
+      .scale-card { padding: 12px 4px; min-height: 70px; }
+      .scale-num { font-size: 1.3rem; }
+      .scale-label { font-size: 0.62rem; }
+      .question-label { font-size: 1rem; }
+      .choice-card { padding: 12px 14px; font-size: 0.93rem; }
+      .brand-lockup { gap: 14px; }
+      .brand-lockup .logo-oneglobal { height: 28px; }
+      .brand-lockup .logo-newscale { height: 40px; }
+      .brand-lockup .divider { height: 28px; }
+      .brand-lockup .partner-label { font-size: 0.68rem; }
+      .hero-orb { width: 320px; height: 320px; top: -22%; right: -22%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-orb"></div>
+    <div class="hero-content">
+      <div class="brand-lockup">
+        <img src="oneglobal-logo-white.png" alt="Oneglobal" class="logo-oneglobal" />
+        <span class="divider"></span>
+        <img src="newscale-logo-white.png" alt="NewScale Consulting" class="logo-newscale" />
+      </div>
+      <h1>Pesquisa de <em>Nivelamento</em></h1>
+      <p class="subtitle">Antes da nossa aula sobre Claude, queremos entender como você se relaciona com IA hoje. Suas respostas vão desenhar a aula sob medida pro seu time.</p>
+      <div class="strapline">Broking that revolves around you.</div>
+    </div>
+  </header>
+
+  <main class="container" id="formContainer">
+
+    <div class="intro">
+      <p>Esta pesquisa leva cerca de <strong>4 minutos</strong>. As respostas são individuais e nos ajudam a preparar a aula. Não existe resposta certa ou errada: só queremos saber o ponto de partida de cada um.</p>
+    </div>
+
+    <form id="surveyForm" novalidate>
+
+      <!-- Q1 -->
+      <div class="question">
+        <div class="question-meta">Pergunta 1 de 11</div>
+        <label class="question-label" for="q1">Qual o seu nome completo?</label>
+        <input type="text" id="q1" name="q1_nome" required placeholder="Nome e sobrenome" autocomplete="name">
+      </div>
+
+      <!-- Q2 -->
+      <div class="question">
+        <div class="question-meta">Pergunta 2 de 11</div>
+        <label class="question-label">Como você descreveria seu nível atual de conhecimento em IA?</label>
+        <div class="scale">
+          <label class="scale-option"><input type="radio" name="q2_nivel" value="1 - Nunca usei IA no meu trabalho" required><div class="scale-card"><span class="scale-num">1</span><span class="scale-label">Nunca usei</span></div></label>
+          <label class="scale-option"><input type="radio" name="q2_nivel" value="2 - Já ouvi falar, mas raramente uso"><div class="scale-card"><span class="scale-num">2</span><span class="scale-label">Raramente uso</span></div></label>
+          <label class="scale-option"><input type="radio" name="q2_nivel" value="3 - Uso casualmente, algumas vezes no mês"><div class="scale-card"><span class="scale-num">3</span><span class="scale-label">Uso casual</span></div></label>
+          <label class="scale-option"><input type="radio" name="q2_nivel" value="4 - Uso recorrentemente, faz parte da rotina"><div class="scale-card"><span class="scale-num">4</span><span class="scale-label">Faz parte da rotina</span></div></label>
+          <label class="scale-option"><input type="radio" name="q2_nivel" value="5 - Uso avançado, exploro recursos e construo fluxos"><div class="scale-card"><span class="scale-num">5</span><span class="scale-label">Uso avançado</span></div></label>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="question">
+        <div class="question-meta">Pergunta 3 de 11</div>
+        <label class="question-label">Qual a sua experiência específica com o Claude?</label>
+        <div class="choice-list">
+          <label class="choice"><input type="radio" name="q3_claude" value="Nunca usei" required><div class="choice-card">Nunca usei</div></label>
+          <label class="choice"><input type="radio" name="q3_claude" value="Já abri uma vez ou outra por curiosidade"><div class="choice-card">Já abri uma vez ou outra por curiosidade</div></label>
+          <label class="choice"><input type="radio" name="q3_claude" value="Uso de vez em quando"><div class="choice-card">Uso de vez em quando</div></label>
+          <label class="choice"><input type="radio" name="q3_claude" value="Uso quase todos os dias"><div class="choice-card">Uso quase todos os dias</div></label>
+          <label class="choice"><input type="radio" name="q3_claude" value="Uso intensamente (Projects, artifacts, MCPs, skills...)"><div class="choice-card">Uso intensamente (Projects, artifacts, MCPs, skills...)</div></label>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="question">
+        <div class="question-meta">Pergunta 4 de 11</div>
+        <label class="question-label">Quais ferramentas de IA você já usou? <span class="light">(pode marcar mais de uma)</span></label>
+        <div class="choice-list">
+          <label class="choice"><input type="checkbox" name="q4_ferramentas" value="ChatGPT (OpenAI)"><div class="choice-card">ChatGPT (OpenAI)</div></label>
+          <label class="choice"><input type="checkbox" name="q4_ferramentas" value="Claude (Anthropic)"><div class="choice-card">Claude (Anthropic)</div></label>
+          <label class="choice"><input type="checkbox" name="q4_ferramentas" value="Gemini (Google)"><div class="choice-card">Gemini (Google)</div></label>
+          <label class="choice"><input type="checkbox" name="q4_ferramentas" value="Copilot (Microsoft)"><div class="choice-card">Copilot (Microsoft)</div></label>
+          <label class="choice"><input type="checkbox" name="q4_ferramentas" value="Perplexity"><div class="choice-card">Perplexity</div></label>
+          <label class="choice"><input type="checkbox" name="q4_ferramentas" value="Notion AI"><div class="choice-card">Notion AI</div></label>
+          <label class="choice"><input type="checkbox" name="q4_ferramentas" value="Midjourney / DALL-E / outras de imagem"><div class="choice-card">Midjourney / DALL-E / outras de imagem</div></label>
+          <label class="choice"><input type="checkbox" name="q4_ferramentas" value="Nunca usei nenhuma"><div class="choice-card">Nunca usei nenhuma</div></label>
+          <label class="choice"><input type="checkbox" name="q4_ferramentas" value="Outra" id="q4_other"><div class="choice-card">Outra</div></label>
+        </div>
+        <input type="text" name="q4_outro" class="other-input" id="q4_outro_input" placeholder="Qual outra ferramenta?">
+      </div>
+
+      <!-- Q5 -->
+      <div class="question">
+        <div class="question-meta">Pergunta 5 de 11</div>
+        <label class="question-label">Quão confiante você se sente para identificar onde a IA pode ser aplicada no seu trabalho?</label>
+        <div class="scale">
+          <label class="scale-option"><input type="radio" name="q5_onde_aplicar" value="1 - Nenhuma confiança" required><div class="scale-card"><span class="scale-num">1</span><span class="scale-label">Nenhuma</span></div></label>
+          <label class="scale-option"><input type="radio" name="q5_onde_aplicar" value="2 - Pouca confiança"><div class="scale-card"><span class="scale-num">2</span><span class="scale-label">Pouca</span></div></label>
+          <label class="scale-option"><input type="radio" name="q5_onde_aplicar" value="3 - Confiança moderada"><div class="scale-card"><span class="scale-num">3</span><span class="scale-label">Moderada</span></div></label>
+          <label class="scale-option"><input type="radio" name="q5_onde_aplicar" value="4 - Boa confiança"><div class="scale-card"><span class="scale-num">4</span><span class="scale-label">Boa confiança</span></div></label>
+          <label class="scale-option"><input type="radio" name="q5_onde_aplicar" value="5 - Confiança total"><div class="scale-card"><span class="scale-num">5</span><span class="scale-label">Total</span></div></label>
+        </div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="question">
+        <div class="question-meta">Pergunta 6 de 11</div>
+        <label class="question-label">Você compreende os limites da IA — o que ela faz bem e onde costuma errar?</label>
+        <div class="scale">
+          <label class="scale-option"><input type="radio" name="q6_limites" value="1 - Não compreendo" required><div class="scale-card"><span class="scale-num">1</span><span class="scale-label">Não compreendo</span></div></label>
+          <label class="scale-option"><input type="radio" name="q6_limites" value="2 - Compreendo pouco"><div class="scale-card"><span class="scale-num">2</span><span class="scale-label">Compreendo pouco</span></div></label>
+          <label class="scale-option"><input type="radio" name="q6_limites" value="3 - Compreendo razoavelmente"><div class="scale-card"><span class="scale-num">3</span><span class="scale-label">Razoavelmente</span></div></label>
+          <label class="scale-option"><input type="radio" name="q6_limites" value="4 - Compreendo bem"><div class="scale-card"><span class="scale-num">4</span><span class="scale-label">Compreendo bem</span></div></label>
+          <label class="scale-option"><input type="radio" name="q6_limites" value="5 - Compreendo totalmente"><div class="scale-card"><span class="scale-num">5</span><span class="scale-label">Compreendo totalmente</span></div></label>
+        </div>
+      </div>
+
+      <!-- Q7 -->
+      <div class="question">
+        <div class="question-meta">Pergunta 7 de 11</div>
+        <label class="question-label">Você se sente capaz de avaliar se uma resposta gerada por IA é confiável?</label>
+        <div class="scale">
+          <label class="scale-option"><input type="radio" name="q7_confiabilidade" value="1 - Não me sinto capaz" required><div class="scale-card"><span class="scale-num">1</span><span class="scale-label">Não me sinto capaz</span></div></label>
+          <label class="scale-option"><input type="radio" name="q7_confiabilidade" value="2 - Pouco capaz"><div class="scale-card"><span class="scale-num">2</span><span class="scale-label">Pouco capaz</span></div></label>
+          <label class="scale-option"><input type="radio" name="q7_confiabilidade" value="3 - Razoavelmente capaz"><div class="scale-card"><span class="scale-num">3</span><span class="scale-label">Razoavelmente</span></div></label>
+          <label class="scale-option"><input type="radio" name="q7_confiabilidade" value="4 - Capaz na maior parte das vezes"><div class="scale-card"><span class="scale-num">4</span><span class="scale-label">Capaz quase sempre</span></div></label>
+          <label class="scale-option"><input type="radio" name="q7_confiabilidade" value="5 - Totalmente capaz"><div class="scale-card"><span class="scale-num">5</span><span class="scale-label">Totalmente capaz</span></div></label>
+        </div>
+      </div>
+
+      <!-- Q8 -->
+      <div class="question">
+        <div class="question-meta">Pergunta 8 de 11</div>
+        <label class="question-label">Em qual contexto você imagina usar IA / Claude na Proativa? <span class="light">(pode marcar mais de uma)</span></label>
+        <div class="choice-list">
+          <label class="choice"><input type="checkbox" name="q8_contexto" value="Análise de dados e relatórios"><div class="choice-card">Análise de dados e relatórios</div></label>
+          <label class="choice"><input type="checkbox" name="q8_contexto" value="Tomada de decisão estratégica"><div class="choice-card">Tomada de decisão estratégica</div></label>
+          <label class="choice"><input type="checkbox" name="q8_contexto" value="Comunicação interna e externa"><div class="choice-card">Comunicação interna e externa</div></label>
+          <label class="choice"><input type="checkbox" name="q8_contexto" value="Automação de tarefas operacionais"><div class="choice-card">Automação de tarefas operacionais</div></label>
+          <label class="choice"><input type="checkbox" name="q8_contexto" value="Apoio em reuniões e documentação"><div class="choice-card">Apoio em reuniões e documentação</div></label>
+          <label class="choice"><input type="checkbox" name="q8_contexto" value="Ainda não tenho clareza"><div class="choice-card">Ainda não tenho clareza</div></label>
+          <label class="choice"><input type="checkbox" name="q8_contexto" value="Outro" id="q8_other"><div class="choice-card">Outro</div></label>
+        </div>
+        <input type="text" name="q8_outro" class="other-input" id="q8_outro_input" placeholder="Em qual outro contexto?">
+      </div>
+
+      <!-- Q9 -->
+      <div class="question">
+        <div class="question-meta">Pergunta 9 de 11</div>
+        <label class="question-label">Como você se sente em relação ao uso de IA no seu trabalho hoje?</label>
+        <div class="choice-list">
+          <label class="choice"><input type="radio" name="q9_postura" value="Animado(a) com as possibilidades" required><div class="choice-card">Animado(a) com as possibilidades</div></label>
+          <label class="choice"><input type="radio" name="q9_postura" value="Curioso(a), mas com dúvidas práticas"><div class="choice-card">Curioso(a), mas com dúvidas práticas</div></label>
+          <label class="choice"><input type="radio" name="q9_postura" value="Inseguro(a) sobre por onde começar"><div class="choice-card">Inseguro(a) sobre por onde começar</div></label>
+          <label class="choice"><input type="radio" name="q9_postura" value="Cético(a) sobre o impacto real no meu dia a dia"><div class="choice-card">Cético(a) sobre o impacto real no meu dia a dia</div></label>
+        </div>
+      </div>
+
+      <!-- Q10 -->
+      <div class="question">
+        <div class="question-meta">Pergunta 10 de 11</div>
+        <label class="question-label" for="q10">Em uma frase: o que você mais quer aprender ou levar dessa aula?</label>
+        <textarea id="q10" name="q10_aprender" required placeholder="O que vai fazer essa aula valer a pena pra você?"></textarea>
+      </div>
+
+      <!-- Q11 -->
+      <div class="question">
+        <div class="question-meta">Pergunta 11 de 11</div>
+        <label class="question-label" for="q11">Tem alguma dúvida, receio ou tema que gostaria que fosse abordado? <span class="light">(opcional)</span></label>
+        <textarea id="q11" name="q11_duvidas" placeholder="Pode ser uma dúvida boba, uma resistência ou um tema específico."></textarea>
+      </div>
+
+      <button type="submit" class="submit" id="submitBtn">Enviar respostas</button>
+
+    </form>
+
+    <div class="success-msg" id="successMsg">
+      <div class="check">✓</div>
+      <h2>Recebido — obrigada!</h2>
+      <p>Sua resposta foi registrada. A gente se vê na aula.</p>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    Pesquisa conduzida em parceria com <span class="newscale-mark">NewScale Consulting</span>
+    <span class="separator">·</span> Curso Claude para Times
+    <span class="separator">·</span> Junho 2026
+  </footer>
+
+  <script>
+    // Toggle "outro" inputs
+    document.getElementById('q4_other').addEventListener('change', function () {
+      document.getElementById('q4_outro_input').classList.toggle('show', this.checked);
+      if (!this.checked) document.getElementById('q4_outro_input').value = '';
+    });
+    document.getElementById('q8_other').addEventListener('change', function () {
+      document.getElementById('q8_outro_input').classList.toggle('show', this.checked);
+      if (!this.checked) document.getElementById('q8_outro_input').value = '';
+    });
+
+    // Webhook do Google Apps Script (deploy v1 - 2026-05-26)
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxarDiYXYuqbAKNpqjni-QpVe0tJsId8agqDx1hp8E8jUUZwInYKo9Xi5zsis-Hc81a/exec';
+
+    document.getElementById('surveyForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+
+      const formData = new FormData(this);
+      const data = {};
+      // Agrega múltiplos checkboxes
+      for (const key of new Set(formData.keys())) {
+        const values = formData.getAll(key).filter(v => v && v.toString().trim() !== '');
+        if (values.length === 0) continue;
+        data[key] = values.length > 1 ? values.join('; ') : values[0];
+      }
+      data.timestamp = new Date().toISOString();
+
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(data)
+        });
+        document.getElementById('surveyForm').style.display = 'none';
+        document.getElementById('successMsg').classList.add('show');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (err) {
+        console.error(err);
+        alert('Houve um erro ao enviar suas respostas. Tente novamente — se persistir, fale com a Bruna.');
+        btn.disabled = false;
+        btn.textContent = 'Enviar respostas';
+      }
+    });
+  </script>
+
+</body>
+</html>
